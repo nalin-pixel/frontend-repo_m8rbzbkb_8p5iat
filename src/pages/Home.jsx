@@ -1,7 +1,6 @@
 import { useEffect, useRef, useState } from 'react'
 import Spline from '@splinetool/react-spline'
 import { CalendarDays, MapPin, Shield, ChevronDown } from 'lucide-react'
-import Navbar from './components/Navbar'
 
 const backend = import.meta.env.VITE_BACKEND_URL || 'http://localhost:8000'
 
@@ -76,40 +75,17 @@ function AuthPanel({ onAuthed }) {
   )
 }
 
-export default function App() {
-  const heroRef = useRef(null)
-  const featuresRef = useRef(null)
-  const turfsRef = useRef(null)
-  const pricingRef = useRef(null)
-  const contactRef = useRef(null)
-
-  const [user, setUser] = useState(null)
+export default function Home({ refs, setUser }){
   const [turfs, setTurfs] = useState([])
 
-  useEffect(() => {
-    const token = localStorage.getItem('token')
-    if (token) {
-      fetch(`${backend}/auth/me`, { headers: { Authorization: `Bearer ${token}` } })
-        .then(r=>r.ok?r.json():null)
-        .then(u=>u && setUser(u))
-    }
+  useEffect(()=>{
     fetch(`${backend}/turfs`).then(r=>r.json()).then(setTurfs).catch(()=>{})
   }, [])
 
-  const smoothScroll = (section) => {
-    const map = { hero: heroRef, features: featuresRef, turfs: turfsRef, pricing: pricingRef, contact: contactRef }
-    const ref = map[section]
-    ref?.current?.scrollIntoView({ behavior: 'smooth', block: 'start' })
-  }
-
-  const logout = () => { localStorage.removeItem('token'); setUser(null) }
-
   return (
-    <div className="min-h-screen bg-[#0B1020] text-white scroll-smooth">
-      <Navbar user={user} onLogout={logout} onHomeScroll={smoothScroll} />
-
+    <>
       {/* Hero */}
-      <section id="hero" ref={heroRef} className="relative h-[95svh] w-full overflow-hidden">
+      <section id="hero" ref={refs?.heroRef} className="relative h-[95svh] w-full overflow-hidden">
         <div className="absolute inset-0">
           <Spline scene="https://prod.spline.design/qQUip0dJPqrrPryE/scene.splinecode" style={{ width: '100%', height: '100%' }} />
         </div>
@@ -122,7 +98,7 @@ export default function App() {
             <h1 className="text-4xl sm:text-6xl font-bold tracking-tight leading-tight">PlayHub — book premium turfs with style</h1>
             <p className="mt-4 text-white/80 max-w-xl">A futuristic, smooth experience for discovering, scheduling, and managing your sports sessions. Auth built-in. Admin ready.</p>
             <div className="mt-8 flex flex-wrap gap-3">
-              <button onClick={()=>smoothScroll('turfs')} className="px-5 py-3 rounded-xl bg-white text-gray-900 hover:bg-gray-100 font-semibold">Explore Turfs</button>
+              <a href="#turfs" className="px-5 py-3 rounded-xl bg-white text-gray-900 hover:bg-gray-100 font-semibold">Explore Turfs</a>
               <a href="#auth" className="px-5 py-3 rounded-xl bg-gradient-to-r from-cyan-500 to-blue-600 hover:opacity-90 font-semibold">Get Started</a>
             </div>
           </div>
@@ -130,7 +106,7 @@ export default function App() {
         <div className="absolute bottom-6 left-1/2 -translate-x-1/2 text-white/70 animate-bounce flex items-center gap-2"><ChevronDown/> Scroll</div>
       </section>
 
-      {/* Features with parallax cards */}
+      {/* Features */}
       <ParallaxSection id="features" title="Why PlayHub" subtitle="Designed for speed, security, and stunning visuals">
         <div className="grid md:grid-cols-3 gap-6">
           {[{
@@ -202,10 +178,10 @@ export default function App() {
         <div className="max-w-6xl mx-auto flex items-center justify-between">
           <div>© {new Date().getFullYear()} PlayHub</div>
           <div className="flex items-center gap-3">
-            <a href="#hero" onClick={(e)=>{e.preventDefault();smoothScroll('hero')}} className="hover:text-white">Back to top</a>
+            <a href="#hero" className="hover:text-white">Back to top</a>
           </div>
         </div>
       </footer>
-    </div>
+    </>
   )
 }
